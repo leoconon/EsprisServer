@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Espris</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<script src="js/uikit.min.js"></script>
+    <script src="js/uikit-icons.min.js"></script>
+    <link rel="stylesheet" href="css/uikit-rtl.min.css"/>
+    <link rel="stylesheet" href="css/uikit.min.css"/>
+</head>
+<body>
+	<nav class="uk-navbar-container uk-background-primary" uk-navbar>
+        <div class="uk-navbar-left">
+            <a class="uk-navbar-item uk-logo" href="#">
+                ESPris
+            </a>
+        </div>
+    </nav>
+    <div class="uk-container">
+	    <div class="uk-card uk-card-default uk-card-body">
+	    	<h3 class="uk-card-title">Ranking</h3>
+	    	<div id="content" class="uk-container">
+	    		<div uk-spinner></div>
+	    	</div>
+	    </div>
+	</div>
+	<script>
+		function httpGetAsync(theUrl, callback)
+		{
+		    var xmlHttp = new XMLHttpRequest();
+		    xmlHttp.onreadystatechange = function() { 
+		        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+		            callback(xmlHttp.responseText);
+		    }
+		    xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+		    xmlHttp.send(null);
+		}
+
+		function doRequest() {
+			httpGetAsync(`/status`, (r) => {
+				const players = JSON.parse(r);
+				let completeHtml = "";
+				console.log(players);
+				players.forEach(player => {
+					completeHtml += (
+						`<article class="uk-comment">
+						    <header class="uk-comment-header">
+						        <div class="uk-grid-medium uk-flex-middle" uk-grid>
+						            <div class="uk-width-auto">
+						                <img class="uk-comment-avatar" src="img/avatar.jpg" width="80" height="80" alt="">
+						            </div>
+						            <div class="uk-width-expand">
+						                <h4 class="uk-comment-title uk-margin-remove"><a class="uk-link-reset" href="#">${player.username}</a></h4>
+						                <ul class="uk-comment-meta uk-subnav uk-subnav-divider uk-margin-remove-top">
+						                    <li><a href="#">Pts: ${player.totalScore}</a></li>
+						                    <li><a style="color: green;">${player.gaming ? 'Jogando agora: ' + player.actualScore + ' pts' : ''}</a></li>
+						                </ul>
+						            </div>
+						        </div>
+						    </header>
+						</article>`
+					);
+				});
+				document.getElementById('content').innerHTML = completeHtml;
+			});
+		}
+
+		doRequest();
+		setInterval(() => doRequest(), 5000);
+	</script>
+</body>
+</html>
